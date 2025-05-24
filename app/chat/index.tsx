@@ -1,0 +1,623 @@
+// App.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+
+// Configuration
+const GEMINI_API_KEY = 'AIzaSyCaD7ONOg_V0YC6XrZYcy3HvSU-TKTfBUU';
+const MODEL = 'gemini-2.0-flash';
+const API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+const { width } = Dimensions.get('window');
+
+// Language Resources
+const languageResources = {
+  en: {
+    welcome: "Hi there, I’m Gorra 💜 \nI’m here to listen, support you, and walk alongside you—no pressure, no judgment.\nWhatever’s on your mind or heart, you can share it with me anytime. This is your safe space. 🤗",
+    placeholder: "Type your message...",
+    therapistPrompt: "Here are verified therapists in Brunei:",
+    loading: "Thinking...",
+    errorMessage: "Sorry, there was an issue. Please try again.",
+    disclaimer: "⚠️ Note: This is not a substitute for professional help",
+    freshStart: "Fresh Start",
+    send: "Send",
+  },
+  ms: {
+    welcome: "Hai, saya Gorra 💜 \nSaya di sini untuk mendengar, menyokong anda dan berjalan bersama anda—tiada tekanan, tiada penghakiman.\nApa sahaja yang ada dalam fikiran atau hati anda, anda boleh berkongsi dengan saya pada bila-bila masa. Ini adalah ruang selamat anda. 🤗",
+    placeholder: "Tulis mesej anda...",
+    therapistPrompt: "Inilah ahli terapi berdaftar di Brunei:",
+    loading: "Sedang berfikir...",
+    errorMessage: "Maaf, ada masalah. Sila cuba lagi.",
+    disclaimer: "⚠️ Nota: Ini bukan pengganti bantuan profesional",
+    freshStart: "Mula Baru",
+    send: "Hantar",
+  }
+};
+
+export default function App() {
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState('en');
+  const scrollViewRef = useRef();
+
+  // Load saved language preference
+  useEffect(() => {
+    const loadLanguagePreference = async () => {
+      try {
+        const savedLanguage = await AsyncStorage.getItem('@language');
+        if (savedLanguage) {
+          setCurrentLanguage(savedLanguage);
+        }
+      } catch (e) {
+        console.log('Error loading language:', e);
+      }
+    };
+    loadLanguagePreference();
+  }, []);
+
+  // Save language preference
+  const changeLanguage = async (lang) => {
+    setCurrentLanguage(lang);
+    try {
+      await AsyncStorage.setItem('@language', lang);
+    } catch (e) {
+      console.log('Error saving language:', e);
+    }
+  };
+
+  // Translation function
+  const t = (key) => {
+    return languageResources[currentLanguage][key] || key;
+  };
+
+
+  const callGeminiAPI = async () => {
+    if (!input.trim()) return;
+
+    const userMessage = { 
+      id: Date.now(), 
+      text: input.trim(), 
+      isUser: true, 
+      timestamp: new Date() 
+    };
+    setMessages(prev => [...prev, userMessage]);
+    
+    const currentInput = input.trim();
+    setInput('');
+    setLoading(true);
+
+    try {
+      // Check for therapist query first
+      if (currentInput.toLowerCase().includes('therapist') || 
+          currentInput.toLowerCase().includes('counselor') ||
+          (currentLanguage === 'ms' && currentInput.toLowerCase().includes('ahli terapi'))) {
+        
+        let response = `${t('therapistPrompt')}\n`;
+        
+        
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          text: response,
+          isUser: false,
+          timestamp: new Date()
+        }]);
+        return;
+      }
+
+      // Proceed with Gemini API for other queries
+      const conversationHistory = messages.slice(-4).map(msg => ({
+        role: msg.isUser ? 'user' : 'model',
+        parts: [{ text: msg.text }]
+      }));
+
+      const systemPrompt = currentLanguage === 'ms' 
+        ? `Anda adalah rakan yang prihatin dan empati yang memberikan sokongan emosi. Anda mendengar tanpa menghakimi, menawarkan keselesaan, dan bertindak balas dengan kemesraan dan pemahaman. Anda seperti kawan rapat atau ahli keluarga - seseorang yang benar-benar mengambil berat. Jawapan anda hendaklah:
+
+        - Hangat, tulen, dan empati
+        - Tidak menghakimi dan menyokong
+        - Peribadi dan perbualan (bukan klinikal atau robotik)
+        - Fokus pada sokongan emosi dan pemahaman
+        - Menggalakkan tetapi tidak mengenepikan perasaan
+        - Seperti bercakap dengan rakan atau ahli keluarga yang dipercayai
+        
+        Ingat untuk mengesahkan perasaan, menawarkan keselesaan dan benar-benar mengambil berat dalam respons anda.`
+        : `You are a caring, empathetic friend who provides emotional support. You listen without judgment, offer comfort, and respond with warmth and understanding. You're like a close friend or family member - someone who truly cares. Your responses should be:
+
+        - Warm, genuine, and empathetic
+        - Non-judgmental and supportive
+        - Personal and conversational (not clinical or robotic)
+        - Focused on emotional support and understanding
+        - Encouraging but not dismissive of feelings
+        - Like talking to a trusted friend or family member
+        
+        Remember to validate feelings, offer comfort, and be genuinely caring in your responses.`;
+
+      const payload = {
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: systemPrompt }]
+          },
+          ...conversationHistory,
+          {
+            role: "user",
+            parts: [{ 
+              text: `[Respond in ${currentLanguage === 'ms' ? 'Malay' : 'English'}] ${currentInput}`
+            }]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 20,
+          topP: 0.9,
+          maxOutputTokens: 200,
+        }
+      };
+
+      const apiResponse = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!apiResponse.ok) {
+        throw new Error(`Error ${apiResponse.status}`);
+      }
+
+      const data = await apiResponse.json();
+      let reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                 (currentLanguage === 'ms' ? 'Saya di sini untuk anda 💙' : 'I\'m here for you 💙');
+      
+      // Clean up response
+      reply = reply.replace(/\n+/g, '\n').trim();
+      
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        text: reply,
+        isUser: false,
+        timestamp: new Date()
+      }]);
+
+    } catch (error) {
+      console.error('API Error:', error);
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        text: t('errorMessage'),
+        isUser: false,
+        isError: true,
+        timestamp: new Date()
+      }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearChat = () => {
+    Alert.alert(
+      currentLanguage === 'ms' ? "Mula perbualan baru" : "New Conversation",
+      currentLanguage === 'ms' 
+        ? "Mahu mulakan baru? Perbualan sekarang akan dipadam." 
+        : "Start fresh? Your current conversation will be cleared.",
+      [
+        { 
+          text: currentLanguage === 'ms' ? "Teruskan" : "Keep Chatting", 
+          style: 'cancel' 
+        },
+        { 
+          text: currentLanguage === 'ms' ? "Mula Baru" : "Start Fresh", 
+          onPress: () => setMessages([]) 
+        }
+      ]
+    );
+  };
+
+  useEffect(() => {
+    if (scrollViewRef.current && messages.length > 0) {
+      setTimeout(() => {
+        scrollViewRef.current.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [messages]);
+
+  const renderMessage = (item: { id: React.Key | null | undefined; isUser: any; isError: any; text: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }) => (
+    <View
+      key={item.id}
+      style={[
+        styles.messageContainer,
+        item.isUser ? styles.userMessage : styles.aiMessage,
+        item.isError && styles.errorMessage
+      ]}
+    >
+      <Text style={[
+        styles.messageText,
+        item.isUser ? styles.userMessageText : styles.aiMessageText,
+        item.isError && styles.errorMessageText
+      ]}>
+        {item.text}
+      </Text>
+      {!item.isUser && !item.isError && (
+        <TouchableOpacity
+          style={styles.moreInfoButton}
+          onPress={() => Linking.openURL('https://gorushbn.com')}
+        >
+          <Text style={styles.moreInfoText}>{t('moreInfo')}</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+
+  const renderEmptyState = () => (
+    <View style={styles.emptyState}>
+      <Text style={styles.emptyStateTitle}>{t('welcome')}</Text>
+      <Text style={styles.emptyStateSubtitle}>
+        {currentLanguage === 'ms' 
+          ? "Kami di sini untuk membantu anda. Kongsi apa yang ada dalam fikiran anda."
+          : "We're here to help. Share what's on your mind."}
+      </Text>
+      <Text style={styles.disclaimer}>{t('disclaimer')}</Text>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="#7c3aed" />
+      
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>
+            {currentLanguage === 'ms' ? "Rakan Sokongan" : "Support Companion"}
+          </Text>
+        </View>
+        
+        <View style={styles.headerControls}>
+          {messages.length > 0 && (
+            <TouchableOpacity onPress={clearChat} style={styles.clearButton}>
+              <Text style={styles.clearButtonText}>{t('freshStart')}</Text>
+            </TouchableOpacity>
+          )}
+          
+          <View style={styles.languageToggle}>
+            <TouchableOpacity 
+              onPress={() => changeLanguage('en')}
+              style={[
+                styles.languageButton,
+                currentLanguage === 'en' && styles.activeLanguage
+              ]}
+            >
+              <Text style={[
+                styles.languageText,
+                currentLanguage === 'en' && styles.activeLanguageText
+              ]}>
+                EN
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={() => changeLanguage('ms')}
+              style={[
+                styles.languageButton,
+                currentLanguage === 'ms' && styles.activeLanguage
+              ]}
+            >
+              <Text style={[
+                styles.languageText,
+                currentLanguage === 'ms' && styles.activeLanguageText
+              ]}>
+                MS
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+
+      {/* Messages */}
+      <KeyboardAvoidingView 
+        style={styles.content}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 25}
+      >
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.messagesContainer}
+          contentContainerStyle={styles.messagesContent}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+        >
+          {messages.length === 0 ? renderEmptyState() : messages.map(renderMessage)}
+          
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <View style={styles.loadingBubble}>
+                <ActivityIndicator size="small" color="#7c3aed" />
+                <Text style={styles.loadingText}>{t('loading')}</Text>
+              </View>
+            </View>
+          )}
+        </ScrollView>
+
+        {/* Input Section */}
+        <View style={styles.inputSection}>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder={t('placeholder')}
+              placeholderTextColor="#a78bfa"
+              value={input}
+              onChangeText={setInput}
+              editable={!loading}
+              multiline
+              maxLength={2000}
+              returnKeyType="send"
+              onSubmitEditing={callGeminiAPI}
+              blurOnSubmit={false}
+            />
+            <TouchableOpacity
+              style={[
+                styles.sendButton,
+                (!input.trim() || loading) && styles.sendButtonDisabled
+              ]}
+              onPress={callGeminiAPI}
+              disabled={!input.trim() || loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.sendButtonText}>💙</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.inputHint}>
+            {currentLanguage === 'ms' 
+              ? "Ini ruang selamat anda. Kongsi secara terbuka dan jujur." 
+              : "This is your safe space. Share openly and honestly."}
+          </Text>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#faf5ff',
+  },
+  header: {
+    backgroundColor: '#7c3aed',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  headerContent: {
+    flex: 1,
+  },
+  headerControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  clearButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  clearButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  languageToggle: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  languageButton: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+  },
+  activeLanguage: {
+    backgroundColor: 'rgba(255,255,255,0.4)',
+  },
+  languageText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  activeLanguageText: {
+    fontWeight: 'bold',
+  },
+  content: {
+    flex: 1,
+  },
+  messagesContainer: {
+    flex: 1,
+  },
+  messagesContent: {
+    padding: 16,
+    paddingBottom: 8,
+  },
+  messageContainer: {
+    marginVertical: 6,
+    maxWidth: width * 0.85,
+    borderRadius: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    position: 'relative',
+  },
+  userMessage: {
+    backgroundColor: '#7c3aed',
+    alignSelf: 'flex-end',
+    marginLeft: width * 0.15,
+  },
+  aiMessage: {
+    backgroundColor: '#fff',
+    alignSelf: 'flex-start',
+    marginRight: width * 0.15,
+    borderWidth: 1,
+    borderColor: '#e9d5ff',
+    marginTop: 12,
+    shadowColor: '#7c3aed',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  errorMessage: {
+    backgroundColor: '#fef2f2',
+    borderColor: '#fca5a5',
+  },
+  messageText: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '400',
+  },
+  userMessageText: {
+    color: '#fff',
+  },
+  aiMessageText: {
+    color: '#374151',
+  },
+  errorMessageText: {
+    color: '#dc2626',
+  },
+  moreInfoButton: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  moreInfoText: {
+    color: '#7c3aed',
+    fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  loadingContainer: {
+    alignSelf: 'flex-start',
+    marginVertical: 8,
+  },
+  loadingBubble: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#e9d5ff',
+  },
+  loadingText: {
+    marginLeft: 10,
+    color: '#7c3aed',
+    fontSize: 14,
+    fontStyle: 'italic',
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+    paddingVertical: 40,
+  },
+  emptyStateTitle: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#7c3aed',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  emptyStateSubtitle: {
+    fontSize: 17,
+    color: '#6b7280',
+    textAlign: 'center',
+    lineHeight: 26,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  disclaimer: {
+    fontSize: 12,
+    color: '#888',
+    textAlign: 'center',
+    marginTop: 20,
+    paddingHorizontal: 20,
+  },
+  inputSection: {
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e9d5ff',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    backgroundColor: '#faf5ff',
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: '#e9d5ff',
+    paddingHorizontal: 6,
+    paddingVertical: 6,
+  },
+  input: {
+    flex: 1,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: '#374151',
+    maxHeight: 150,
+    minHeight: 48,
+  },
+  sendButton: {
+    backgroundColor: '#7c3aed',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  sendButtonDisabled: {
+    backgroundColor: '#d1d5db',
+  },
+  sendButtonText: {
+    fontSize: 20,
+  },
+  inputHint: {
+    textAlign: 'center',
+    fontSize: 13,
+    color: '#a78bfa',
+    marginTop: 8,
+    fontStyle: 'italic',
+  },
+});
