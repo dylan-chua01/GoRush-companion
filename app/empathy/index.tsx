@@ -1,5 +1,7 @@
 // App.js
+import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -23,6 +25,12 @@ const GEMINI_API_KEY = 'AIzaSyCaD7ONOg_V0YC6XrZYcy3HvSU-TKTfBUU';
 const MODEL = 'gemini-2.0-flash';
 const API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 const { width } = Dimensions.get('window');
+
+const router = useRouter();
+const goHome = () => {
+  router.push('/');
+};
+
 
 // Language Resources
 const languageResources = {
@@ -119,13 +127,38 @@ export default function App() {
         return;
       }
 
+      // Check for Go Rush related queries
+    const gorushKeywords = [
+      'go rush', 'gorush', 'delivery', 'service', 'services',
+      'pharmacy', 'medication', 'medicine', 'rates', 'pricing',
+      'perkhidmatan', 'penghantaran', 'farmasi', 'ubat', 'harga'
+    ];
+    
+    const isGoRushQuery = gorushKeywords.some(keyword => 
+      currentInput.includes(keyword)
+    );
+
+    if (isGoRushQuery) {
+      const response = currentLanguage === 'ms' 
+        ? `Untuk maklumat lanjut tentang perkhidmatan Go Rush, sila lawati laman web kami: www.gorushbn.com\n\nKami menawarkan pelbagai perkhidmatan penghantaran termasuk ubat-ubatan farmasi dan banyak lagi.`
+        : `For more information about Go Rush services, please visit our website: www.gorushbn.com\n\nWe offer various delivery services including pharmacy medications and more.`;
+      
+      setMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        text: response,
+        isUser: false,
+        timestamp: new Date()
+      }]);
+      return;
+    }
+
       // Proceed with Gemini API for other queries
       const conversationHistory = messages.slice(-4).map(msg => ({
         role: msg.isUser ? 'user' : 'model',
         parts: [{ text: msg.text }]
       }));
 
-      const systemPrompt = currentLanguage === 'ms' 
+      const systemPrompt_empathy = currentLanguage === 'ms' 
         ? `Anda adalah rakan yang prihatin dan empati yang memberikan sokongan emosi. Anda mendengar tanpa menghakimi, menawarkan keselesaan, dan bertindak balas dengan kemesraan dan pemahaman. Anda seperti kawan rapat atau ahli keluarga - seseorang yang benar-benar mengambil berat. Jawapan anda hendaklah:
 
         - Hangat, tulen, dan empati
@@ -151,7 +184,7 @@ export default function App() {
         contents: [
           {
             role: "user",
-            parts: [{ text: systemPrompt }]
+            parts: [{ text: systemPrompt_empathy }]
           },
           ...conversationHistory,
           {
@@ -258,7 +291,7 @@ export default function App() {
           style={styles.moreInfoButton}
           onPress={() => Linking.openURL('https://gorushbn.com')}
         >
-          <Text style={styles.moreInfoText}>{t('moreInfo')}</Text>
+        
         </TouchableOpacity>
       )}
     </View>
@@ -281,12 +314,21 @@ export default function App() {
       <StatusBar barStyle="light-content" backgroundColor="#7c3aed" />
       
       {/* Header */}
+      
+      
       <View style={styles.header}>
+      
         <View style={styles.headerContent}>
+          
           <Text style={styles.headerTitle}>
-            {currentLanguage === 'ms' ? "Rakan Sokongan" : "Support Companion"}
+          <TouchableOpacity onPress={goHome}>
+    <Ionicons name="home-outline" size={20} style={{ color: "#fff", marginRight: 10}} />
+  </TouchableOpacity>{currentLanguage === 'ms' ? "Saya Gorra!" : "I'm Gorra!"}
           </Text>
+          
         </View>
+
+        
         
         <View style={styles.headerControls}>
           {messages.length > 0 && (
@@ -380,7 +422,7 @@ export default function App() {
               {loading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <Text style={styles.sendButtonText}>💙</Text>
+                <Ionicons name="arrow-forward-outline" style={{color: "white"}} />
               )}
             </TouchableOpacity>
           </View>
@@ -398,10 +440,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#faf5ff',
+    backgroundColor: '#f0f9ff',
   },
   header: {
-    backgroundColor: '#7c3aed',
+    backgroundColor: '#38bdf8',
     paddingHorizontal: 20,
     paddingVertical: 16,
     flexDirection: 'row',
@@ -619,5 +661,11 @@ const styles = StyleSheet.create({
     color: '#a78bfa',
     marginTop: 8,
     fontStyle: 'italic',
+  },
+  homeButton: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    padding: 8,
+    borderRadius: 20,
+    marginRight: 8,
   },
 });

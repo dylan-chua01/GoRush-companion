@@ -107,7 +107,7 @@ const HomeScreen = () => {
         <View style={styles.buttonSection}>
           <TouchableOpacity 
             style={styles.primaryButton} 
-            onPress={() => router.push('/chat')}
+            onPress={() => router.push('/mood')}
           >
             <Text style={styles.primaryButtonText}>💙 Start Chatting</Text>
             <Text style={[styles.buttonSubtext, {color: "white"}]}>Begin your conversation</Text>
@@ -120,6 +120,13 @@ const HomeScreen = () => {
             <Text style={styles.secondaryButtonText}>🌟 Our Services</Text>
             <Text style={styles.buttonSubtext}>Learn more about GoRush</Text>
           </TouchableOpacity>
+          <TouchableOpacity 
+  style={styles.journalButton} 
+  onPress={() => router.push('/journal')}
+>
+  <Text style={styles.journalButtonText}>📔 Your Journal</Text>
+  <Text style={styles.journalButtonSubtext}>Reflect on your thoughts</Text>
+</TouchableOpacity>
         </View>
 {/* Emergency Services */}
 <View style={styles.emergencySection}>
@@ -461,6 +468,34 @@ const styles = StyleSheet.create({
     color: '#dc2626',
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  journalButton: {
+    backgroundColor: '#f5f3ff',
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    borderRadius: 25,
+    marginBottom: 16,
+    marginTop: 20,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#8b5cf6',
+    shadowColor: '#8b5cf6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  journalButtonText: {
+    color: '#7c3aed',
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  journalButtonSubtext: {
+    fontSize: 14,
+    color: '#a78bfa',
+    opacity: 0.8,
+    marginTop: 2,
   },
 });
 
