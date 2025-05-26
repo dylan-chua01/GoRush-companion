@@ -3,20 +3,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    KeyboardAvoidingView,
-    Linking,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  KeyboardAvoidingView,
+  Linking,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 // Configuration
@@ -370,67 +370,74 @@ export default function App() {
 
       {/* Messages */}
       <KeyboardAvoidingView 
-        style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 25}
-      >
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.messagesContainer}
-          contentContainerStyle={styles.messagesContent}
-          showsVerticalScrollIndicator={false}
-          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
-        >
-          {messages.length === 0 ? renderEmptyState() : messages.map(renderMessage)}
-          
-          {loading && (
-            <View style={styles.loadingContainer}>
-              <View style={styles.loadingBubble}>
-                <ActivityIndicator size="small" color="#7c3aed" />
-                <Text style={styles.loadingText}>{t('loading')}</Text>
-              </View>
-            </View>
-          )}
-        </ScrollView>
-
-        {/* Input Section */}
-        <View style={styles.inputSection}>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder={t('placeholder')}
-              placeholderTextColor="#a78bfa"
-              value={input}
-              onChangeText={setInput}
-              editable={!loading}
-              multiline
-              maxLength={2000}
-              returnKeyType="send"
-              onSubmitEditing={callGeminiAPI}
-              blurOnSubmit={false}
-            />
-            <TouchableOpacity
-              style={[
-                styles.sendButton,
-                (!input.trim() || loading) && styles.sendButtonDisabled
-              ]}
-              onPress={callGeminiAPI}
-              disabled={!input.trim() || loading}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Ionicons name="arrow-forward-outline" style={{color: "white"}} />
-              )}
-            </TouchableOpacity>
-          </View>
-          <Text style={styles.inputHint}>
-            {currentLanguage === 'ms' 
-              ? "Ini ruang selamat anda. Kongsi secara terbuka dan jujur." 
-              : "This is your safe space. Share openly and honestly."}
-          </Text>
+  style={styles.content}
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0} // Increased offset for iOS
+>
+  <ScrollView
+    ref={scrollViewRef}
+    style={styles.messagesContainer}
+    contentContainerStyle={styles.messagesContent}
+    showsVerticalScrollIndicator={false}
+    keyboardShouldPersistTaps="handled" // Important: allows tapping send button
+    onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+  >
+    {messages.length === 0 ? renderEmptyState() : messages.map(renderMessage)}
+    
+    {loading && (
+      <View style={styles.loadingContainer}>
+        <View style={styles.loadingBubble}>
+          <ActivityIndicator size="small" color="#7c3aed" />
+          <Text style={styles.loadingText}>{t('loading')}</Text>
         </View>
-      </KeyboardAvoidingView>
+      </View>
+    )}
+  </ScrollView>
+
+  {/* Input Section */}
+  <View style={styles.inputSection}>
+    <View style={styles.inputContainer}>
+      <TextInput
+        style={styles.input}
+        placeholder={t('placeholder')}
+        placeholderTextColor="#a78bfa"
+        value={input}
+        onChangeText={setInput}
+        editable={!loading}
+        multiline
+        maxLength={2000}
+        returnKeyType="send"
+        onSubmitEditing={callGeminiAPI}
+        blurOnSubmit={false}
+        onFocus={() => {
+          // Scroll to bottom when input is focused
+          setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+          }, 100);
+        }}
+      />
+      <TouchableOpacity
+        style={[
+          styles.sendButton,
+          (!input.trim() || loading) && styles.sendButtonDisabled
+        ]}
+        onPress={callGeminiAPI}
+        disabled={!input.trim() || loading}
+      >
+        {loading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Ionicons name="arrow-forward-outline" style={{color: "white"}} />
+        )}
+      </TouchableOpacity>
+    </View>
+    <Text style={styles.inputHint}>
+      {currentLanguage === 'ms' 
+        ? "Ini ruang selamat anda. Kongsi secara terbuka dan jujur." 
+        : "This is your safe space. Share openly and honestly."}
+    </Text>
+  </View>
+</KeyboardAvoidingView>
     </SafeAreaView>
   );
 }

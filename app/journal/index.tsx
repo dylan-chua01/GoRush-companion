@@ -305,7 +305,7 @@ const MoodJournal = () => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {backgroundColor: "#faf5ff"}]}>
       <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
       
       <View style={styles.tabContainer}>
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   activeTab: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#8b5cf6',
   },
   tabText: {
     fontSize: 16,
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
   statNumber: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#007AFF',
+    color: '#7c3aed',
   },
   statEmoji: {
     fontSize: 32,
