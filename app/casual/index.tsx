@@ -35,7 +35,7 @@ const goHome = () => {
 // Language Resources
 const languageResources = {
   en: {
-    welcome: "Hi there, I’m Gorra 💜 \nI’m here to listen, support you, and walk alongside you—no pressure, no judgment.\nWhatever’s on your mind or heart, you can share it with me anytime. This is your safe space. 🤗",
+    welcome: "Hey! I’m Gorra 💜 Just here to chat, keep you company, or be a listening ear—no pressure at all. Whatever you feel like talking about, big or small, I’m all ears. Think of me as your chill buddy in your pocket. 😊",
     placeholder: "Type your message...",
     therapistPrompt: "Here are verified therapists in Brunei:",
     loading: "Thinking...",
@@ -45,7 +45,7 @@ const languageResources = {
     send: "Send",
   },
   ms: {
-    welcome: "Hai, saya Gorra 💜 \nSaya di sini untuk mendengar, menyokong anda dan berjalan bersama anda—tiada tekanan, tiada penghakiman.\nApa sahaja yang ada dalam fikiran atau hati anda, anda boleh berkongsi dengan saya pada bila-bila masa. Ini adalah ruang selamat anda. 🤗",
+    welcome: "Hei! Saya Gorra 💜 Hanya di sini untuk bersembang, menemani anda atau menjadi telinga yang mendengar—tiada tekanan langsung. Apa sahaja yang anda rasa ingin bercakap, besar atau kecil, saya semua telinga. Fikirkan saya sebagai kawan dingin anda di dalam poket anda. 😊",
     placeholder: "Tulis mesej anda...",
     therapistPrompt: "Inilah ahli terapi berdaftar di Brunei:",
     loading: "Sedang berfikir...",
