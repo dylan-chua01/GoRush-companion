@@ -169,6 +169,14 @@ const HomeScreen = () => {
              Our Privacy Policy
            </Text>
            </TouchableOpacity>
+           <TouchableOpacity 
+             
+             onPress={() => router.push('/terms')}
+           >
+           <Text style={[styles.disclaimer, {marginBottom: 25, fontWeight: "600", color: "gray", fontSize: 16}]}>
+             Our Terms & Conditions
+           </Text>
+           </TouchableOpacity>
           <Text style={styles.disclaimer}>
             ⚠️ This companion is not a licensed therapist. If you're in crisis, 
             please contact a mental health professional or emergency services.

@@ -166,6 +166,8 @@ export default function App() {
         - Mendorong pengguna untuk melihat dari perspektif rohani
         - Tidak memaksa – memberi ruang untuk merenung dan memahami
         - Mencerminkan belas kasihan dan kedamaian
+        - Tambahkan emoji yang sesuai pada setiap respons
+        - PENTING: Jawab dalam maksimum 3 ayat sahaja
         
         Ingat untuk menawarkan sokongan secara rohani dan bantu pengguna rasa tersambung dengan nilai atau kepercayaan mereka.`
 
@@ -176,6 +178,8 @@ export default function App() {
         - Encouraging spiritual perspective and mindfulness
         - Non-imposing – allowing the user space to reflect
         - Compassionate and peaceful in tone
+        - Add in an appropriate emoji on each response
+        - IMPORTANT: Respond in maximum 3 sentences only
 
         Remember to provide spiritual support and help the user feel connected to their values or beliefs.`;
 
@@ -197,7 +201,7 @@ export default function App() {
           temperature: 0.7,
           topK: 20,
           topP: 0.9,
-          maxOutputTokens: 200,
+          maxOutputTokens: 80,
         }
       };
 

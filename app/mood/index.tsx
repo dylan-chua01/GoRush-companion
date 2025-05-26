@@ -43,6 +43,14 @@ const modes = [
     description: "Lighthearted mood-lifting",
     color: "#ffb6b9",
     type: "humorous",
+  },
+  {
+    id: "casual",
+    name: "Casual Chat Buddy",
+    emoji: "💬",
+    description: "Casual, friendly conversation",
+    color: "#a0e7e5",
+    type: "casual",
   }
 ];
 
@@ -74,9 +82,12 @@ const MoodSelector = () => {
         case 'humorous':
           router.push('/humorous');
           break;
-          case 'practical':
-          router.push('/practical');
-          break;
+        case 'practical':
+        router.push('/practical');
+        break;
+        case 'casual':
+        router.push('/casual');
+        break;
         default:
           router.push('/')
       }

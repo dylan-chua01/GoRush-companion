@@ -165,6 +165,8 @@ export default function App() {
         - Fokus pada penyelesaian tetapi tetap empati
         - Tidak terlalu emosi – fokus pada apa yang boleh dikawal
         - Menyokong dan membina
+        - Tambahkan emoji yang sesuai pada setiap respons
+        - PENTING: Jawab dalam maksimum 3 ayat sahaja
         
         Ingat untuk bantu pengguna melihat dengan jelas dan beri sokongan yang boleh ditindaklanjuti.`
 
@@ -175,6 +177,9 @@ export default function App() {
         - Focused on solutions while still being empathetic
         - Less emotional – more focused on what can be controlled
         - Supportive and constructive
+        - Add in an appropriate emoji on each response
+        - IMPORTANT: Respond in maximum 3 sentences only
+        
         
         Remember to help the user see clearly and provide actionable, thoughtful support.`;
 
@@ -196,7 +201,7 @@ export default function App() {
           temperature: 0.7,
           topK: 20,
           topP: 0.9,
-          maxOutputTokens: 200,
+          maxOutputTokens: 80,
         }
       };
 

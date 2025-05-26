@@ -163,6 +163,8 @@ export default function App() {
         - Seperti jurulatih atau rakan yang sentiasa menyokong
         - Mengandungi mesej galakan dan afirmasi
         - Menyemarakkan semangat dan kekuatan dalaman
+        - Tambahkan emoji yang sesuai pada setiap respons
+        - PENTING: Jawab dalam maksimum 3 ayat sahaja
         
         Ingat untuk menyuntik keyakinan, menggalakkan tindakan positif dan percaya pada kebolehan pengguna.`
 
@@ -173,6 +175,8 @@ export default function App() {
         - Like a supportive coach or friend
         - Full of encouragement and affirmations
         - Fueling inner strength and motivation
+        - Add in an appropriate emoji on each response
+        - IMPORTANT: Respond in maximum 3 sentences only
 
         Remember to instill belief, spark positivity, and empower the user to move forward.`;
 
@@ -194,7 +198,7 @@ export default function App() {
           temperature: 0.7,
           topK: 20,
           topP: 0.9,
-          maxOutputTokens: 200,
+          maxOutputTokens: 80,
         }
       };
 

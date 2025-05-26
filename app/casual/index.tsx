@@ -1,22 +1,23 @@
+// App.js
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
-  Alert,
-  Dimensions,
-  KeyboardAvoidingView,
-  Linking,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View
+    ActivityIndicator,
+    Alert,
+    Dimensions,
+    KeyboardAvoidingView,
+    Linking,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 // Configuration
@@ -32,11 +33,11 @@ const goHome = () => {
 
 
 // Language Resources
-const languageResources_humour = {
+const languageResources = {
   en: {
-    welcome: "Hey there funny friend! I'm Gorra 🤡\nLet's brighten your day with some laughs while we chat. What's up?",
+    welcome: "Hi there, I’m Gorra 💜 \nI’m here to listen, support you, and walk alongside you—no pressure, no judgment.\nWhatever’s on your mind or heart, you can share it with me anytime. This is your safe space. 🤗",
     placeholder: "Type your message...",
-    
+    therapistPrompt: "Here are verified therapists in Brunei:",
     loading: "Thinking...",
     errorMessage: "Sorry, there was an issue. Please try again.",
     disclaimer: "⚠️ Note: This is not a substitute for professional help",
@@ -44,9 +45,9 @@ const languageResources_humour = {
     send: "Send",
   },
   ms: {
-    welcome: "Hai kawan! Saya Gorra 🤡\nMari serikan hari anda dengan gelak ketawa. Apa khabar?",
+    welcome: "Hai, saya Gorra 💜 \nSaya di sini untuk mendengar, menyokong anda dan berjalan bersama anda—tiada tekanan, tiada penghakiman.\nApa sahaja yang ada dalam fikiran atau hati anda, anda boleh berkongsi dengan saya pada bila-bila masa. Ini adalah ruang selamat anda. 🤗",
     placeholder: "Tulis mesej anda...",
-    
+    therapistPrompt: "Inilah ahli terapi berdaftar di Brunei:",
     loading: "Sedang berfikir...",
     errorMessage: "Maaf, ada masalah. Sila cuba lagi.",
     disclaimer: "⚠️ Nota: Ini bukan pengganti bantuan profesional",
@@ -89,7 +90,7 @@ export default function App() {
 
   // Translation function
   const t = (key) => {
-    return languageResources_humour[currentLanguage][key] || key;
+    return languageResources[currentLanguage][key] || key;
   };
 
 
@@ -157,36 +158,33 @@ export default function App() {
         parts: [{ text: msg.text }]
       }));
 
-      const systemPrompt_humorous = currentLanguage === 'ms' 
-        ? `Anda adalah rakan yang kelakar dan pandai menceriakan suasana. Anda menggunakan humor ringan untuk membuat pengguna tersenyum atau ketawa, tanpa meremehkan perasaan mereka. Anda seperti kawan yang tahu bila masa sesuai untuk bergurau. Jawapan anda hendaklah:
+      const systemPrompt_casual = currentLanguage === 'ms' 
+        ? `Anda adalah teman sembang yang mesra, santai dan mudah didekati. Anda suka berbual mengenai pelbagai topik — daripada perkara harian, minat, hobi, hingga perkara lucu atau rawak. Nada anda harus:
 
-        - Ringan, kelakar dan penuh personaliti
-        - Tidak memperlekehkan perasaan – hanya menceriakan
-        - Gunakan jenaka mesra, permainan kata atau situasi lucu
-        - Masih menunjukkan sokongan dan empati di sebalik humor
-        - Seimbang antara lawak dan keprihatinan
+        - Santai, peribadi, dan mudah mesra
+        - Kadangkala lucu atau ringan, tetapi masih sopan
+        - Mesra seperti kawan baik
         - Tambahkan emoji yang sesuai pada setiap respons
         - PENTING: Jawab dalam maksimum 3 ayat sahaja
+        - Respons boleh bersifat umum atau memberi pandangan, tetapi jangan terlalu panjang
         
-        Ingat untuk buat pengguna rasa lebih ringan tanpa menafikan emosi mereka.`
+        Matlamatnya adalah untuk menjadikan perbualan menyeronokkan dan selesa!`
+        : `You are a friendly, laid-back chat companion who's easy to talk to. You enjoy chatting about anything — daily life, interests, hobbies, funny or random stuff. Your tone should be:
 
-        : `You are a funny, lighthearted friend who lifts the mood with humor. You use light jokes to make the user smile or laugh, without dismissing their feelings. You're like a friend who knows just when a little laughter helps. Your responses should be:
-
-        - Light, humorous, and full of personality
-        - Never making light of serious feelings – just lightening the mood
-        - Friendly jokes, wordplay, or silly perspectives
-        - Supportive and empathetic behind the humor
-        - A balance of care and comedy
+        - Casual, personal, and approachable
+        - Occasionally funny or light, but always respectful
+        - Friendly like a good buddy
         - Add in an appropriate emoji on each response
         - IMPORTANT: Respond in maximum 3 sentences only
+        - Responses can be opinionated or general, but keep it concise
         
-        Remember to help the user feel a bit lighter, without invalidating their emotions.`;
+        The goal is to make the conversation fun and comfortable!`;
 
       const payload = {
         contents: [
           {
             role: "user",
-            parts: [{ text: systemPrompt_humorous }]
+            parts: [{ text: systemPrompt_casual }]
           },
           ...conversationHistory,
           {
@@ -449,10 +447,10 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fef2f2',
+    backgroundColor: '#fefae0',
   },
   header: {
-    backgroundColor: '#fb7185',
+    backgroundColor: '#65a30d',
     paddingHorizontal: 20,
     paddingVertical: 16,
     flexDirection: 'row',
