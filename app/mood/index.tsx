@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 const modes = [
   {
@@ -94,7 +94,7 @@ const MoodSelector = () => {
     };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Who do you need most now?</Text>
       <FlatList
         data={modes}
@@ -111,7 +111,7 @@ const MoodSelector = () => {
         )}
         contentContainerStyle={{ paddingBottom: 20 }}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     padding: 20,
+    // marginTop: 50,
   },
   title: {
     fontSize: 24,

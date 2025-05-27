@@ -2,12 +2,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
 import {
-    Linking,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
+  Linking,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 export default function TermsScreen({ onAcknowledge }: { onAcknowledge: () => void }) {
@@ -16,7 +17,7 @@ export default function TermsScreen({ onAcknowledge }: { onAcknowledge: () => vo
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <ScrollView 
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -108,7 +109,7 @@ export default function TermsScreen({ onAcknowledge }: { onAcknowledge: () => vo
           <Text style={styles.buttonText}>I Understand & Agree</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 

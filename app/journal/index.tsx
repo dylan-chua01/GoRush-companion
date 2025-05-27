@@ -2,18 +2,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    Dimensions,
-    FlatList,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
+  ActivityIndicator,
+  Alert,
+  Dimensions,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
@@ -162,75 +164,88 @@ const MoodJournal = () => {
   const stats = getMoodStats();
 
   const renderWriteMode = () => (
-    <ScrollView style={styles.writeContainer} showsVerticalScrollIndicator={false}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.mainHeader}>How are you feeling today?</Text>
-        <Text style={styles.subText}>Take a moment to check in with yourself</Text>
-      </View>
-
-      <View style={styles.moodContainer}>
-        {moods.map((mood) => (
-          <TouchableOpacity
-            key={mood.label}
-            style={[
-              styles.moodButton,
-              selectedMood === mood.label && [styles.moodButtonSelected, { borderColor: mood.color }],
-            ]}
-            onPress={() => setSelectedMood(mood.label)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.moodIcon}>{mood.icon}</Text>
-            <Text style={[styles.moodLabel, selectedMood === mood.label && { color: mood.color }]}>
-              {mood.label}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {selectedMood && (
-        <View style={styles.selectedMoodContainer}>
-          <Text style={styles.selectedMoodText}>
-            You're feeling {selectedMood.toLowerCase()} today {moods.find(m => m.label === selectedMood)?.icon}
-          </Text>
+    <KeyboardAvoidingView 
+      style={{ flex: 1 }} 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <ScrollView 
+        style={styles.writeContainer} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.headerContainer}>
+          <Text style={styles.mainHeader}>How are you feeling today?</Text>
+          <Text style={styles.subText}>Take a moment to check in with yourself</Text>
         </View>
-      )}
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.inputLabel}>What's on your mind?</Text>
-        <TextInput
-          multiline
-          placeholder="Share your thoughts, experiences, or anything you'd like to remember about today..."
-          value={entry}
-          onChangeText={setEntry}
-          style={styles.textInput}
-          textAlignVertical="top"
-          placeholderTextColor="#999"
-        />
-        <Text style={styles.charCount}>{entry.length} characters</Text>
-      </View>
+        <View style={styles.moodContainer}>
+          {moods.map((mood) => (
+            <TouchableOpacity
+              key={mood.label}
+              style={[
+                styles.moodButton,
+                selectedMood === mood.label && [styles.moodButtonSelected, { borderColor: mood.color }],
+              ]}
+              onPress={() => setSelectedMood(mood.label)}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.moodIcon}>{mood.icon}</Text>
+              <Text style={[styles.moodLabel, selectedMood === mood.label && { color: mood.color }]}>
+                {mood.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
-      <TouchableOpacity 
-        style={[styles.saveButton, (!selectedMood || !entry.trim()) && styles.saveButtonDisabled]} 
-        onPress={saveJournal} 
-        disabled={saving || !selectedMood || !entry.trim()}
-        activeOpacity={0.8}
-      >
-        {saving ? (
-          <ActivityIndicator color="white" />
-        ) : (
-          <Text style={styles.saveText}>Save Entry ✨</Text>
+        {selectedMood && (
+          <View style={styles.selectedMoodContainer}>
+            <Text style={styles.selectedMoodText}>
+              You're feeling {selectedMood.toLowerCase()} today {moods.find(m => m.label === selectedMood)?.icon}
+            </Text>
+          </View>
         )}
-      </TouchableOpacity>
 
-      <TouchableOpacity 
-        style={[styles.saveButton, {backgroundColor: "#d0e8ff"}]} 
-        onPress={() => router.push('/')} 
-        disabled={saving || !selectedMood || !entry.trim()}
-        activeOpacity={0.8}
-      >
-          <Text style={[styles.saveText, {color: "gray"}]}>Back to Home 🏠</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>What's on your mind?</Text>
+          <TextInput
+            multiline
+            placeholder="Share your thoughts, experiences, or anything you'd like to remember about today..."
+            value={entry}
+            onChangeText={setEntry}
+            style={styles.textInput}
+            textAlignVertical="top"
+            placeholderTextColor="#999"
+            scrollEnabled={true}
+            blurOnSubmit={false}
+            returnKeyType="default"
+          />
+          <Text style={styles.charCount}>{entry.length} characters</Text>
+        </View>
+
+        <TouchableOpacity 
+          style={[styles.saveButton, (!selectedMood || !entry.trim()) && styles.saveButtonDisabled]} 
+          onPress={saveJournal} 
+          disabled={saving || !selectedMood || !entry.trim()}
+          activeOpacity={0.8}
+        >
+          {saving ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.saveText}>Save Entry ✨</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.saveButton, {backgroundColor: "#d0e8ff"}]} 
+          onPress={() => router.push('/')} 
+          activeOpacity={0.8}
+        >
+            <Text style={[styles.saveText, {color: "gray"}]}>Back to Home 🏠</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 
   const renderHistoryMode = () => (
@@ -457,6 +472,7 @@ const styles = StyleSheet.create({
     padding: 16,
     fontSize: 16,
     minHeight: 120,
+    maxHeight: 200,
     borderWidth: 1,
     borderColor: '#E1E8ED',
     color: '#2C3E50',
