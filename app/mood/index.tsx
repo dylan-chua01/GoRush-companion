@@ -94,7 +94,7 @@ const MoodSelector = () => {
     };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {}]}>
       <Text style={styles.title}>Who do you need most now?</Text>
       <FlatList
         data={modes}
