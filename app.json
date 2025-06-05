@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "GoRush-companion",
-    "slug": "GoRush-companion",
+    "slug": "gorush-companion",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -46,8 +46,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "6049ec86-b727-401e-8dec-fa4e62c5180f"
+        "projectId": "7d1b68fe-b345-48b8-b81e-684c0be44296"
       }
-    }
+    },
+    "owner": "gorush"
   }
 }
