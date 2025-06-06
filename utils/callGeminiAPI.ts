@@ -5,7 +5,7 @@ const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '
 
 export async function callGeminiAPI(input: string, language: string = 'en'): Promise<string> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const faqMatch = handleFAQQuery(userInput);
 if (faqMatch) {
