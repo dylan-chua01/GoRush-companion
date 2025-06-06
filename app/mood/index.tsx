@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import { FlatList, SafeAreaView, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const modes = [
   {
@@ -92,9 +93,11 @@ const MoodSelector = () => {
           router.push('/')
       }
     };
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={[styles.container, {}]}>
+    
+    <SafeAreaView style={[styles.container, {paddingTop: insets.top}]}>
       <Text style={styles.title}>Who do you need most now?</Text>
       <FlatList
         data={modes}

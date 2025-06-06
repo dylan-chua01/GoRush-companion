@@ -1,4 +1,4 @@
-// App.js
+// App.js - Fixed Android Header Issue
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from 'expo-router';
@@ -10,7 +10,6 @@ import {
   KeyboardAvoidingView,
   Linking,
   Platform,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -19,6 +18,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'; // Add this import
 
 // Configuration
 const GEMINI_API_KEY = 'AIzaSyCaD7ONOg_V0YC6XrZYcy3HvSU-TKTfBUU';
@@ -31,11 +31,10 @@ const goHome = () => {
   router.push('/');
 };
 
-
 // Language Resources
 const languageResources = {
   en: {
-    welcome: "Hey! I’m Gorra 💜 Just here to chat, keep you company, or be a listening ear—no pressure at all. Whatever you feel like talking about, big or small, I’m all ears. Think of me as your chill buddy in your pocket. 😊",
+    welcome: "Hey! I'm Gorra 💜 Just here to chat, keep you company, or be a listening ear—no pressure at all. Whatever you feel like talking about, big or small, I'm all ears. Think of me as your chill buddy in your pocket. 😊",
     placeholder: "Type your message...",
     therapistPrompt: "Here are verified therapists in Brunei:",
     loading: "Thinking...",
@@ -62,6 +61,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const scrollViewRef = useRef();
+  
+  const insets = useSafeAreaInsets();
 
   // Load saved language preference
   useEffect(() => {
@@ -93,7 +94,6 @@ export default function App() {
     return languageResources[currentLanguage][key] || key;
   };
 
-
   const callGeminiAPI = async () => {
     if (!input.trim()) return;
 
@@ -117,7 +117,6 @@ export default function App() {
         
         let response = `${t('therapistPrompt')}\n`;
         
-        
         setMessages(prev => [...prev, {
           id: Date.now() + 1,
           text: response,
@@ -128,29 +127,29 @@ export default function App() {
       }
 
       // Check for Go Rush related queries
-    const gorushKeywords = [
-      'go rush', 'gorush', 'delivery', 'service', 'services',
-      'pharmacy', 'medication', 'medicine', 'rates', 'pricing',
-      'perkhidmatan', 'penghantaran', 'farmasi', 'ubat', 'harga'
-    ];
-    
-    const isGoRushQuery = gorushKeywords.some(keyword => 
-      currentInput.includes(keyword)
-    );
-
-    if (isGoRushQuery) {
-      const response = currentLanguage === 'ms' 
-        ? `Untuk maklumat lanjut tentang perkhidmatan Go Rush, sila lawati laman web kami: www.gorushbn.com\n\nKami menawarkan pelbagai perkhidmatan penghantaran termasuk ubat-ubatan farmasi dan banyak lagi.`
-        : `For more information about Go Rush services, please visit our website: www.gorushbn.com\n\nWe offer various delivery services including pharmacy medications and more.`;
+      const gorushKeywords = [
+        'go rush', 'gorush', 'delivery', 'service', 'services',
+        'pharmacy', 'medication', 'medicine', 'rates', 'pricing',
+        'perkhidmatan', 'penghantaran', 'farmasi', 'ubat', 'harga'
+      ];
       
-      setMessages(prev => [...prev, {
-        id: Date.now() + 1,
-        text: response,
-        isUser: false,
-        timestamp: new Date()
-      }]);
-      return;
-    }
+      const isGoRushQuery = gorushKeywords.some(keyword => 
+        currentInput.includes(keyword)
+      );
+
+      if (isGoRushQuery) {
+        const response = currentLanguage === 'ms' 
+          ? `Untuk maklumat lanjut tentang perkhidmatan Go Rush, sila lawati laman web kami: www.gorushbn.com\n\nKami menawarkan pelbagai perkhidmatan penghantaran termasuk ubat-ubatan farmasi dan banyak lagi.`
+          : `For more information about Go Rush services, please visit our website: www.gorushbn.com\n\nWe offer various delivery services including pharmacy medications and more.`;
+        
+        setMessages(prev => [...prev, {
+          id: Date.now() + 1,
+          text: response,
+          isUser: false,
+          timestamp: new Date()
+        }]);
+        return;
+      }
 
       // Proceed with Gemini API for other queries
       const conversationHistory = messages.slice(-4).map(msg => ({
@@ -196,9 +195,9 @@ export default function App() {
         ],
         generationConfig: {
           temperature: 0.7,
-          topK: 20,
-          topP: 0.9,
-          maxOutputTokens: 80,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 200,
         }
       };
 
@@ -270,7 +269,7 @@ export default function App() {
     }
   }, [messages]);
 
-  const renderMessage = (item: { id: React.Key | null | undefined; isUser: any; isError: any; text: string | number | bigint | boolean | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | Promise<string | number | bigint | boolean | React.ReactPortal | React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | null | undefined> | null | undefined; }) => (
+  const renderMessage = (item) => (
     <View
       key={item.id}
       style={[
@@ -291,7 +290,6 @@ export default function App() {
           style={styles.moreInfoButton}
           onPress={() => Linking.openURL('https://gorushbn.com')}
         >
-        
         </TouchableOpacity>
       )}
     </View>
@@ -310,26 +308,24 @@ export default function App() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#7c3aed" />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar 
+        barStyle="light-content" 
+        backgroundColor="#65a30d" 
+        translucent={false}
+      />
       
-      {/* Header */}
-      
-      
+      {/* Header - Now properly positioned */}
       <View style={styles.header}>
-      
         <View style={styles.headerContent}>
-          
           <Text style={styles.headerTitle}>
-          <TouchableOpacity onPress={goHome}>
-    <Ionicons name="home-outline" size={20} style={{ color: "#fff", marginRight: 10}} />
-  </TouchableOpacity>{currentLanguage === 'ms' ? "Saya Gorra!" : "I'm Gorra!"}
+            <TouchableOpacity onPress={goHome}>
+              <Ionicons name="home-outline" size={20} style={{ color: "#fff", marginRight: 10}} />
+            </TouchableOpacity>
+            {currentLanguage === 'ms' ? "Saya Gorra!" : "I'm Gorra!"}
           </Text>
-          
         </View>
 
-        
-        
         <View style={styles.headerControls}>
           {messages.length > 0 && (
             <TouchableOpacity onPress={clearChat} style={styles.clearButton}>
@@ -373,8 +369,8 @@ export default function App() {
       {/* Messages */}
       <KeyboardAvoidingView 
         style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         <ScrollView
           ref={scrollViewRef}
@@ -403,7 +399,7 @@ export default function App() {
         {/* Input Section */}
         <View style={[
           styles.inputSection,
-          Platform.OS === 'android' && styles.inputSectionAndroid
+          { paddingBottom: Math.max(insets.bottom + 12) }
         ]}>
           <View style={styles.inputContainer}>
             <TextInput
@@ -446,7 +442,7 @@ export default function App() {
           </Text>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -522,6 +518,7 @@ const styles = StyleSheet.create({
   messagesContent: {
     padding: 16,
     paddingBottom: 8,
+    flexGrow: 1
   },
   messageContainer: {
     marginVertical: 6,
@@ -632,7 +629,6 @@ const styles = StyleSheet.create({
     borderTopColor: '#e9d5ff',
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 12,
   },
   inputContainer: {
     flexDirection: 'row',

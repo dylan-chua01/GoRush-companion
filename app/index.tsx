@@ -6,7 +6,6 @@ import {
   Dimensions,
   Image,
   Linking,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -14,6 +13,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type RootStackParamList = {
   Home: undefined;
@@ -46,9 +46,10 @@ const HomeScreen = () => {
   const callMentalHealthHotline = () => {
     Linking.openURL('tel:145');
   };
+  const insets = useSafeAreaInsets();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#7c3aed" />
       
       <ScrollView 
@@ -201,7 +202,7 @@ const HomeScreen = () => {
           <Text style={styles.footerText}>© 2025 GoRush - Always here for you</Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

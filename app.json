@@ -13,7 +13,8 @@
       "infoPlist": {
         "NSMicrophoneUsageDescription": "This app needs microphone access for voice recognition.",
         "NSSpeechRecognitionUsageDescription": "This app needs speech recognition access to transcribe your voice."
-      }
+      },
+      "bundleIdentifier": "com.dylan.chua.GoRushcompanion"
     },
     "android": {
       "adaptiveIcon": {

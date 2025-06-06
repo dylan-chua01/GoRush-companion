@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -319,8 +320,10 @@ const MoodJournal = () => {
     </View>
   );
 
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView style={[styles.container, {backgroundColor: "#faf5ff"}]}>
+    <SafeAreaView style={[styles.container, {backgroundColor: "#faf5ff", paddingTop: insets.top}]}>
       <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
       
       <View style={styles.tabContainer}>

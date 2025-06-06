@@ -1,15 +1,15 @@
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import {
-    Dimensions,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const PrivacyPolicyScreen = () => {
   const navigation = useNavigation();
@@ -18,8 +18,10 @@ const PrivacyPolicyScreen = () => {
     navigation.goBack();
   };
 
+  const insets = useSafeAreaInsets();
+
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="#7c3aed" />
       
       {/* Header */}
@@ -157,7 +159,7 @@ const PrivacyPolicyScreen = () => {
           </Text>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 

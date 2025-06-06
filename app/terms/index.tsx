@@ -3,21 +3,21 @@ import { router } from 'expo-router';
 import React from 'react';
 import {
   Linking,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TermsScreen({ onAcknowledge }: { onAcknowledge: () => void }) {
   const openEmergencyContacts = () => {
     Linking.openURL('https://www.moh.gov.bn/Pages/Contact-Us.aspx');
   };
-
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <ScrollView 
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -109,7 +109,7 @@ export default function TermsScreen({ onAcknowledge }: { onAcknowledge: () => vo
           <Text style={styles.buttonText}>I Understand & Agree</Text>
         </TouchableOpacity>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 

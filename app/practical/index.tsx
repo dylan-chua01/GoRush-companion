@@ -9,7 +9,6 @@ import {
   KeyboardAvoidingView,
   Linking,
   Platform,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
@@ -18,6 +17,7 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // Configuration
 const GEMINI_API_KEY = 'AIzaSyCaD7ONOg_V0YC6XrZYcy3HvSU-TKTfBUU';
@@ -61,6 +61,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState('en');
   const scrollViewRef = useRef();
+  const insets = useSafeAreaInsets();
 
   // Load saved language preference
   useEffect(() => {
@@ -199,9 +200,9 @@ export default function App() {
         ],
         generationConfig: {
           temperature: 0.7,
-          topK: 20,
-          topP: 0.9,
-          maxOutputTokens: 80,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 200,
         }
       };
 
@@ -313,8 +314,8 @@ export default function App() {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#7c3aed" />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="light-content" backgroundColor="#7c3aed" translucent={false} />
       
       {/* Header */}
       
@@ -376,8 +377,8 @@ export default function App() {
       {/* Messages */}
       <KeyboardAvoidingView 
         style={styles.content}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
       >
         <ScrollView
           ref={scrollViewRef}
@@ -406,7 +407,7 @@ export default function App() {
         {/* Input Section */}
         <View style={[
           styles.inputSection,
-          Platform.OS === 'android' && styles.inputSectionAndroid
+          { paddingBottom: Math.max(insets.bottom + 12) }
         ]}>
           <View style={styles.inputContainer}>
             <TextInput
@@ -449,7 +450,7 @@ export default function App() {
           </Text>
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -533,6 +534,7 @@ const styles = StyleSheet.create({
   messagesContent: {
     padding: 16,
     paddingBottom: 8,
+    flexGrow: 1
   },
   messageContainer: {
     marginVertical: 6,
